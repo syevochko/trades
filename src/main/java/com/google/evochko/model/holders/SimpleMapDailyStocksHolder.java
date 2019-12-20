@@ -15,7 +15,7 @@ public class SimpleMapDailyStocksHolder implements IDailyStocksSummHolder {
     public boolean addStock(Stock stock) {
         if (stock != null) {
             DailyStockSummary dailyStock = dailyStockHolder.computeIfAbsent(stock.getSymbol(), DailyStockSummary::new);
-            dailyStock.addStock(stock);
+            return dailyStock.addStock(stock);
         }
         return false;
     }
