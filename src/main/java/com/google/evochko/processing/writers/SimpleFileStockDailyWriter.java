@@ -39,7 +39,7 @@ public class SimpleFileStockDailyWriter implements IStockDailyWriter<DailyStockS
     }
 
     @Override
-    public void writeOut(Collection<DailyStockSummary> dailyStockSummaries) throws IOException {
+    public String writeOutFile(Collection<DailyStockSummary> dailyStockSummaries) throws IOException {
         if (!dailyStockSummaries.isEmpty()) {
             Path path = Paths.get(fileName);
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -50,7 +50,9 @@ public class SimpleFileStockDailyWriter implements IStockDailyWriter<DailyStockS
                     writer.write(prepareOutString(dss));
                 }
             }
+            return path.toString();
         }
+        return null;
     }
 
     protected String getOutputFormat() {

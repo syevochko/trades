@@ -8,5 +8,5 @@ import java.util.Collection;
 public interface IStockDailyWriter<T extends DailyStockSummary> {
     String prepareOutString(T dailyStockSummary);
 
-    void writeOut(Collection<T> dailyStockSummaries) throws IOException;
+    String writeOutFile(Collection<T> dailyStockSummaries) throws IOException;
 }

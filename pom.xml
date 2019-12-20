@@ -24,18 +24,6 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -62,6 +50,17 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <classpathPrefix>lib/</classpathPrefix>
+                                <mainClass>
+                                    com.google.evochko.TradesRunner
+                                </mainClass>
+                            </manifest>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>

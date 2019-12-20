@@ -4,17 +4,18 @@ import com.google.evochko.model.DailyStockSummary;
 import com.google.evochko.processing.readers.IStockDailyReader;
 import com.google.evochko.processing.readers.SimpleFileStockDailyReader;
 import com.google.evochko.processing.writers.SimpleFileStockDailyWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class TradesRunner {
-    private static final Logger LOGGER = LogManager.getLogger(TradesRunner.class);
+    private static final Logger LOGGER = Logger.getLogger(TradesRunner.class.getSimpleName());
 
     private Map<String, DailyStockSummary> dailyStockHolder;
 
@@ -24,13 +25,15 @@ public class TradesRunner {
 
     public static void main(String[] args) throws URISyntaxException {
         try {
+            LogManager.getLogManager().readConfiguration(TradesRunner.class.getResourceAsStream("/logging.properties"));
+
             TradesRunner runner = new TradesRunner();
             URI fileUrl = runner.getClass().getResource("/stocks.txt").toURI();
             runner.startDailyStockSummarize(fileUrl);
             SimpleFileStockDailyWriter stockDailyWriter = new SimpleFileStockDailyWriter("results11.txt", Locale.getDefault());
-            stockDailyWriter.writeOut(runner.dailyStockHolder.values());
+            LOGGER.log(Level.INFO, "results was written to file: " + stockDailyWriter.writeOutFile(runner.dailyStockHolder.values()));
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.throwing(TradesRunner.class.getSimpleName(), "main", e);
         }
     }
 

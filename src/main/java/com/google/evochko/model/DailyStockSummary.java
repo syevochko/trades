@@ -11,7 +11,7 @@ public class DailyStockSummary {
     private double maxPrice;
     private BigDecimal totalStockNumber = BigDecimal.ZERO;
     private BigDecimal totalVolume = BigDecimal.ZERO;
-    private RoundingMode roundMode = RoundingMode.HALF_UP;
+    private RoundingMode roundMode = RoundingMode.HALF_EVEN;
 
     public DailyStockSummary(String symbol) {
         this.symbol = symbol;
@@ -36,8 +36,8 @@ public class DailyStockSummary {
                     maxPrice = stock.getPrice();
                 }
                 closePrice = stock.getPrice();
-                totalVolume = totalVolume.add(BigDecimal.valueOf(stock.getVolume()));
-                totalStockNumber = totalStockNumber.add(BigDecimal.valueOf(stock.getVolume() / stock.getPrice()));
+                totalVolume = totalVolume.add(stock.getVolume());
+                totalStockNumber = totalStockNumber.add(stock.getVolume().divide(BigDecimal.valueOf(stock.getPrice()), roundMode));
                 return true;
             }
         }
@@ -72,9 +72,9 @@ public class DailyStockSummary {
         return totalVolume;
     }
 
-    public double getAvgPrice() {
-        return BigDecimal.ZERO == totalStockNumber ? BigDecimal.ZERO.doubleValue() :
-                totalVolume.divide(totalStockNumber, roundMode).doubleValue();
+    public BigDecimal getAvgPrice() {
+        return BigDecimal.ZERO == totalStockNumber ? BigDecimal.ZERO :
+                totalVolume.divide(totalStockNumber, roundMode);
     }
 
     @Override

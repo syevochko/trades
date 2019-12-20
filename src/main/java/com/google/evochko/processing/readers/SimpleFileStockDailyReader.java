@@ -3,20 +3,21 @@ package com.google.evochko.processing.readers;
 import com.google.evochko.model.DailyStockSummary;
 import com.google.evochko.model.Stock;
 import com.google.evochko.processing.readers.strategies.ReadErrorHandleStrategy;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 public class SimpleFileStockDailyReader implements IStockDailyReader<String> {
     private static final int DATA_PER_ROW = 3;
-    private static final Logger LOGGER = LogManager.getLogger(SimpleFileStockDailyReader.class);
+    private static final Logger LOGGER = Logger.getLogger(SimpleFileStockDailyReader.class.getName());
 
     private final URI fileName;
     private final Map<String, DailyStockSummary> dailyStockHolder;
@@ -35,8 +36,8 @@ public class SimpleFileStockDailyReader implements IStockDailyReader<String> {
                 DailyStockSummary dailyStock = dailyStockHolder.computeIfAbsent(stock.getSymbol(), DailyStockSummary::new);
                 dailyStock.addStock(stock);
             });
-        } catch (IOException e) {
-            LOGGER.error(e);
+        } catch (Exception e) {
+            LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "readData", "Error with file: " + fileName, e);
         }
     }
 
@@ -47,18 +48,18 @@ public class SimpleFileStockDailyReader implements IStockDailyReader<String> {
                 String s = normalize(obj);
                 String[] splitted = s.trim().split("\\s+", DATA_PER_ROW);
                 if (splitted.length > DATA_PER_ROW) {
-                    LOGGER.warn("Object has more data than specified: " + obj);
+                    LOGGER.log(Level.WARNING, "Object has more data than specified: " + obj);
                 } else if (splitted.length < DATA_PER_ROW) {
-                    LOGGER.error("Stock wasn't created - object has less data than specified: " + obj);
+                    LOGGER.log(Level.WARNING, "Stock wasn't created - object has less data than specified: " + obj);
                     return null;
                 }
 
                 double price = Double.parseDouble(splitted[1]);
-                double volume = Double.parseDouble(splitted[2]);
+                BigDecimal volume = BigDecimal.valueOf(Double.parseDouble(splitted[2]));
                 return new Stock(splitted[0].toUpperCase(), price, volume);
 
             } catch (PatternSyntaxException | NumberFormatException | NullPointerException e) {
-                LOGGER.error("Stock wasn't created: " + obj, e);
+                LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "readStock", "Stock wasn't created: " + obj, e);
             }
         }
         return null;

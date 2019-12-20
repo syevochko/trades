@@ -1,11 +1,13 @@
 package com.google.evochko.model;
 
+import java.math.BigDecimal;
+
 public class Stock {
     private final String symbol;
     private final double price;
-    private final double volume;
+    private final BigDecimal volume;
 
-    public Stock(String symbol, double price, double volume) {
+    public Stock(String symbol, double price, BigDecimal volume) {
         this.symbol = symbol;
         this.price = price;
         this.volume = volume;
@@ -19,7 +21,7 @@ public class Stock {
         return price;
     }
 
-    public double getVolume() {
+    public BigDecimal getVolume() {
         return volume;
     }
 }
