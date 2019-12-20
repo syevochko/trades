@@ -21,8 +21,8 @@ public class SimpleFileStockDailyWriter implements IStockDailyWriter<DailyStockS
         this.fileName = fileName;
         this.locale = locale;
         decimalFormat = locale == null ?
-                new DecimalFormat("#.####") :
-                new DecimalFormat("#.####", new DecimalFormatSymbols(locale));
+                new DecimalFormat("#.######") :
+                new DecimalFormat("#.######", new DecimalFormatSymbols(locale));
     }
 
     @Override
@@ -39,9 +39,9 @@ public class SimpleFileStockDailyWriter implements IStockDailyWriter<DailyStockS
     }
 
     @Override
-    public String writeOutFile(Collection<DailyStockSummary> dailyStockSummaries) throws IOException {
+    public String writeOut(Collection<DailyStockSummary> dailyStockSummaries) throws IOException {
         if (!dailyStockSummaries.isEmpty()) {
-            Path path = Paths.get(fileName);
+            Path path = Paths.get(fileName).toAbsolutePath();
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
                 writer.write(
                         String.format(locale, getOutputFormat(), "Stock", "Open", "Close", "Min", "Max", "Average", "Vol")

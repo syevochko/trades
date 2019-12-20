@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class DailyStockSummary {
+    private static final int SCALING = 8;
+
     private final String symbol;
     private double openPrice;
     private double closePrice;
@@ -17,16 +19,10 @@ public class DailyStockSummary {
         this.symbol = symbol;
     }
 
-    public DailyStockSummary withRoundingMode(RoundingMode mode) {
-        roundMode = mode;
-        return this;
-    }
-
-    // TODO need synchronization
     public boolean addStock(Stock stock) {
         if (stock != null) {
             if (symbol.equalsIgnoreCase(stock.getSymbol())) {
-                if (BigDecimal.ZERO == totalStockNumber) {
+                if (totalStockNumber.signum() == 0) {
                     openPrice = stock.getPrice();
                     minPrice = stock.getPrice();
                     maxPrice = stock.getPrice();
@@ -37,7 +33,7 @@ public class DailyStockSummary {
                 }
                 closePrice = stock.getPrice();
                 totalVolume = totalVolume.add(stock.getVolume());
-                totalStockNumber = totalStockNumber.add(stock.getVolume().divide(BigDecimal.valueOf(stock.getPrice()), roundMode));
+                totalStockNumber = totalStockNumber.add(stock.getVolume().divide(BigDecimal.valueOf(stock.getPrice()), SCALING, roundMode));
                 return true;
             }
         }
@@ -73,8 +69,8 @@ public class DailyStockSummary {
     }
 
     public BigDecimal getAvgPrice() {
-        return BigDecimal.ZERO == totalStockNumber ? BigDecimal.ZERO :
-                totalVolume.divide(totalStockNumber, roundMode);
+        return totalStockNumber.signum() == 0 ? BigDecimal.ZERO :
+                totalVolume.divide(totalStockNumber, SCALING, roundMode);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.google.evochko.processing.readers;
 
 import com.google.evochko.model.Stock;
+import com.google.evochko.model.holders.IDailyStocksSummHolder;
 
 public interface IStockDailyReader<T> {
 
-    void readData();
+    void readData(IDailyStocksSummHolder dailyStockHolder);
 
-    Stock readStock(T obj);
+    Stock parse(T obj);
 
 }

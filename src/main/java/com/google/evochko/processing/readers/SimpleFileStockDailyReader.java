@@ -1,15 +1,12 @@
 package com.google.evochko.processing.readers;
 
-import com.google.evochko.model.DailyStockSummary;
 import com.google.evochko.model.Stock;
-import com.google.evochko.processing.readers.strategies.ReadErrorHandleStrategy;
+import com.google.evochko.model.holders.IDailyStocksSummHolder;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
@@ -19,30 +16,23 @@ public class SimpleFileStockDailyReader implements IStockDailyReader<String> {
     private static final int DATA_PER_ROW = 3;
     private static final Logger LOGGER = Logger.getLogger(SimpleFileStockDailyReader.class.getName());
 
-    private final URI fileName;
-    private final Map<String, DailyStockSummary> dailyStockHolder;
-    private ReadErrorHandleStrategy errorHandleStrategy;
+    private final Path filePath;
 
-    public SimpleFileStockDailyReader(URI fileName, Map<String, DailyStockSummary> dailyStockHolder) {
-        this.fileName = fileName;
-        this.dailyStockHolder = dailyStockHolder;
+    public SimpleFileStockDailyReader(Path filePath) {
+        this.filePath = filePath;
     }
 
     @Override
-    public void readData() {
-        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            stream.forEach(s -> {
-                Stock stock = readStock(s);
-                DailyStockSummary dailyStock = dailyStockHolder.computeIfAbsent(stock.getSymbol(), DailyStockSummary::new);
-                dailyStock.addStock(stock);
-            });
+    public void readData(IDailyStocksSummHolder dailyStockHolder) {
+        try (Stream<String> stream = Files.lines(filePath)) {
+            stream.forEach(s -> dailyStockHolder.addStock(parse(s)));
         } catch (Exception e) {
-            LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "readData", "Error with file: " + fileName, e);
+            LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "readData", "Error with file: " + filePath, e);
         }
     }
 
     @Override
-    public Stock readStock(String obj) {
+    public Stock parse(String obj) {
         if (obj != null && obj.length() > 0) {
             try {
                 String s = normalize(obj);
@@ -59,7 +49,7 @@ public class SimpleFileStockDailyReader implements IStockDailyReader<String> {
                 return new Stock(splitted[0].toUpperCase(), price, volume);
 
             } catch (PatternSyntaxException | NumberFormatException | NullPointerException e) {
-                LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "readStock", "Stock wasn't created: " + obj, e);
+                LOGGER.logp(Level.SEVERE, this.getClass().getSimpleName(), "parse", "Stock wasn't created: " + obj, e);
             }
         }
         return null;
